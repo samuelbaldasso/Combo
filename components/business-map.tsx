@@ -7,7 +7,7 @@ import type { Business } from "@/types/business"
 
 interface BusinessMapProps {
   businesses: Business[]
-  userLocation?: { latitude: number; longitude: number }
+  userLocation: { latitude: number; longitude: number }
   onBusinessSelect?: (business: Business) => void
 }
 
@@ -125,7 +125,7 @@ export function BusinessMap({ businesses, userLocation, onBusinessSelect }: Busi
 
       // Don't zoom in too far
       const listener = window.google.maps.event.addListener(map, "idle", () => {
-        if (map.getZoom() > 16) map.setZoom(16)
+        if (map.getZoom()! > 16) map.setZoom(16)
         window.google.maps.event.removeListener(listener)
       })
     }

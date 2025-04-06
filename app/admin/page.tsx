@@ -1,23 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Plus, Trash, Edit, Save } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LocationSearch } from "@/components/location-search"
-import { BusinessMap } from "@/components/business-map"
-import { loadGoogleMapsScript } from "@/lib/google-maps"
-import type { Business } from "@/types/business"
+import { useState, useEffect } from "react";
+import { Plus, Trash, Edit, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LocationSearch } from "@/components/location-search";
+import { BusinessMap } from "@/components/business-map";
+import { loadGoogleMapsScript } from "@/lib/google-maps";
+import type { Business } from "@/types/business";
 
 export default function AdminPage() {
-  const [businesses, setBusinesses] = useState<Business[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false)
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null)
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null
+  );
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -26,63 +28,65 @@ export default function AdminPage() {
     latitude: 0,
     longitude: 0,
     openingHours: "",
-  })
-  const [isEditing, setIsEditing] = useState(false)
+  });
+  const [isEditing, setIsEditing] = useState(false);
 
   // Load Google Maps script
   useEffect(() => {
     loadGoogleMapsScript()
       .then(() => setIsGoogleMapsLoaded(true))
-      .catch((err) => console.error("Failed to load Google Maps:", err))
-  }, [])
+      .catch((err) => console.error("Failed to load Google Maps:", err));
+  }, []);
 
   // Fetch businesses on component mount
   useEffect(() => {
-    fetchBusinesses()
-  }, [])
+    fetchBusinesses();
+  }, []);
 
   const fetchBusinesses = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/businesses")
+      const response = await fetch("/api/admin/businesses");
       if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`)
+        throw new Error(`API responded with status: ${response.status}`);
       }
-      const data = await response.json()
-      setBusinesses(data.businesses || [])
+      const data = await response.json();
+      setBusinesses(data.businesses || []);
     } catch (error) {
-      console.error("Error fetching businesses:", error)
+      console.error("Error fetching businesses:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleLocationSelect = (location: {
-    latitude: number
-    longitude: number
-    address: string
+    latitude: number;
+    longitude: number;
+    address: string;
   }) => {
     setFormData((prev) => ({
       ...prev,
       latitude: location.latitude,
       longitude: location.longitude,
       address: location.address,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const url =
-        isEditing && selectedBusiness ? `/api/admin/businesses/${selectedBusiness.id}` : "/api/admin/businesses"
+        isEditing && selectedBusiness
+          ? `/api/admin/businesses/${selectedBusiness.id}`
+          : "/api/admin/businesses";
 
-      const method = isEditing ? "PUT" : "POST"
+      const method = isEditing ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -90,10 +94,10 @@ export default function AdminPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`)
+        throw new Error(`API responded with status: ${response.status}`);
       }
 
       // Reset form and refresh businesses
@@ -105,18 +109,18 @@ export default function AdminPage() {
         latitude: 0,
         longitude: 0,
         openingHours: "",
-      })
+      });
 
-      setIsEditing(false)
-      setSelectedBusiness(null)
-      fetchBusinesses()
+      setIsEditing(false);
+      setSelectedBusiness(null);
+      fetchBusinesses();
     } catch (error) {
-      console.error("Error saving business:", error)
+      console.error("Error saving business:", error);
     }
-  }
+  };
 
   const handleEdit = (business: Business) => {
-    setSelectedBusiness(business)
+    setSelectedBusiness(business);
     setFormData({
       name: business.name,
       category: business.category,
@@ -125,29 +129,29 @@ export default function AdminPage() {
       latitude: business.latitude || 0,
       longitude: business.longitude || 0,
       openingHours: business.openingHours || "",
-    })
-    setIsEditing(true)
-  }
+    });
+    setIsEditing(true);
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este negócio?")) {
-      return
+      return;
     }
 
     try {
       const response = await fetch(`/api/admin/businesses/${id}`, {
         method: "DELETE",
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`)
+        throw new Error(`API responded with status: ${response.status}`);
       }
 
-      fetchBusinesses()
+      fetchBusinesses();
 
       if (selectedBusiness?.id === id) {
-        setSelectedBusiness(null)
-        setIsEditing(false)
+        setSelectedBusiness(null);
+        setIsEditing(false);
         setFormData({
           name: "",
           category: "",
@@ -156,12 +160,12 @@ export default function AdminPage() {
           latitude: 0,
           longitude: 0,
           openingHours: "",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error deleting business:", error)
+      console.error("Error deleting business:", error);
     }
-  }
+  };
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -183,9 +187,13 @@ export default function AdminPage() {
             </div>
 
             {isLoading ? (
-              <p className="text-center py-12 text-muted-foreground">Carregando...</p>
+              <p className="text-center py-12 text-muted-foreground">
+                Carregando...
+              </p>
             ) : businesses.length === 0 ? (
-              <p className="text-center py-12 text-muted-foreground">Nenhum negócio cadastrado</p>
+              <p className="text-center py-12 text-muted-foreground">
+                Nenhum negócio cadastrado
+              </p>
             ) : (
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full">
@@ -204,10 +212,18 @@ export default function AdminPage() {
                         <td className="p-3">{business.category}</td>
                         <td className="p-3">{business.address}</td>
                         <td className="p-3 flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(business)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(business)}
+                          >
                             <Edit size={16} />
                           </Button>
-                          <Button variant="destructive" size="sm" onClick={() => handleDelete(business.id)}>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(business.id)}
+                          >
                             <Trash size={16} />
                           </Button>
                         </td>
@@ -224,22 +240,40 @@ export default function AdminPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{isEditing ? "Editar Negócio" : "Adicionar Novo Negócio"}</CardTitle>
+                <CardTitle>
+                  {isEditing ? "Editar Negócio" : "Adicionar Novo Negócio"}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nome</label>
-                    <Input name="name" value={formData.name} onChange={handleInputChange} required />
+                    <label className="block text-sm font-medium mb-1">
+                      Nome
+                    </label>
+                    <Input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Categoria</label>
-                    <Input name="category" value={formData.category} onChange={handleInputChange} required />
+                    <label className="block text-sm font-medium mb-1">
+                      Categoria
+                    </label>
+                    <Input
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Localização</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Localização
+                    </label>
                     <LocationSearch
                       onLocationSelect={handleLocationSelect}
                       placeholder="Buscar endereço"
@@ -256,7 +290,9 @@ export default function AdminPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Latitude</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Latitude
+                      </label>
                       <Input
                         name="latitude"
                         type="number"
@@ -267,7 +303,9 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Longitude</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Longitude
+                      </label>
                       <Input
                         name="longitude"
                         type="number"
@@ -280,12 +318,20 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Telefone</label>
-                    <Input name="phone" value={formData.phone} onChange={handleInputChange} />
+                    <label className="block text-sm font-medium mb-1">
+                      Telefone
+                    </label>
+                    <Input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Horário de Funcionamento</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Horário de Funcionamento
+                    </label>
                     <Input
                       name="openingHours"
                       value={formData.openingHours}
@@ -305,8 +351,8 @@ export default function AdminPage() {
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          setIsEditing(false)
-                          setSelectedBusiness(null)
+                          setIsEditing(false);
+                          setSelectedBusiness(null);
                           setFormData({
                             name: "",
                             category: "",
@@ -315,7 +361,7 @@ export default function AdminPage() {
                             latitude: 0,
                             longitude: 0,
                             openingHours: "",
-                          })
+                          });
                         }}
                       >
                         Cancelar
@@ -334,14 +380,10 @@ export default function AdminPage() {
                 <CardContent>
                   <BusinessMap
                     businesses={selectedBusiness ? [selectedBusiness] : []}
-                    userLocation={
-                      formData.latitude && formData.longitude
-                        ? {
-                            latitude: formData.latitude,
-                            longitude: formData.longitude,
-                          }
-                        : undefined
-                    }
+                    userLocation={{
+                      latitude: formData.latitude,
+                      longitude: formData.longitude,
+                    }}
                   />
                   <p className="text-sm text-muted-foreground mt-2">
                     {formData.latitude && formData.longitude
@@ -355,6 +397,5 @@ export default function AdminPage() {
         </TabsContent>
       </Tabs>
     </main>
-  )
+  );
 }
-

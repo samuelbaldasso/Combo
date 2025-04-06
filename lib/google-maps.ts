@@ -1,30 +1,24 @@
 // Google Maps API utilities
 
 // Load the Google Maps API script dynamically
-export function loadGoogleMapsScript(): Promise<void> {
+export async function loadGoogleMapsScript(): Promise<void> {
+  if (window.google?.maps) {
+    return Promise.resolve();
+  }
+
+  if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+    throw new Error('Google Maps API key is not configured');
+  }
+
   return new Promise((resolve, reject) => {
-    if (typeof window === "undefined") {
-      return resolve()
-    }
-
-    // If the script is already loaded, resolve immediately
-    if (window.google && window.google.maps) {
-      return resolve()
-    }
-
-    // Create script element
-    const script = document.createElement("script")
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
-    script.async = true
-    script.defer = true
-
-    // Set up callbacks
-    script.onload = () => resolve()
-    script.onerror = (error) => reject(new Error(`Google Maps script loading failed: ${error}`))
-
-    // Add script to document
-    document.head.appendChild(script)
-  })
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = (error) => reject(error);
+    document.head.appendChild(script);
+  });
 }
 
 // Get city and state from coordinates using Google Maps Geocoding API

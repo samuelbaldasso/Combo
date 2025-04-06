@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     // Call the Google Maps Geocoding API
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
     )
 
     if (!response.ok) {

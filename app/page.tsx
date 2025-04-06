@@ -151,7 +151,7 @@ export default function HomePage() {
                   <div className="w-full lg:w-2/3">
                     <BusinessMap
                       businesses={businesses}
-                      userLocation={location}
+                      userLocation={location!}
                       onBusinessSelect={setSelectedBusiness}
                     />
                   </div>

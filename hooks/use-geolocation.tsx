@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import { getCityFromCoordinates, loadGoogleMapsScript } from "@/lib/google-maps"
+import { set } from "date-fns"
 
 interface Location {
   latitude: number
@@ -76,6 +77,6 @@ export function useGeolocation() {
     }
   }, [])
 
-  return { location, isLocating, error, locateUser, isGoogleMapsLoaded }
+  return { location, isLocating, error, locateUser, isGoogleMapsLoaded, setLocation }
 }
 

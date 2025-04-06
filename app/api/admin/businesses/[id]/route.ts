@@ -2,22 +2,29 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
 // Get a specific business
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const business = await prisma.business.findUnique({
-      where: {
-        id: params.id,
-      },
+      where: { id: params.id },
     })
 
     if (!business) {
-      return NextResponse.json({ error: "Business not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Negócio não encontrado" },
+        { status: 404 }
+      )
     }
 
-    return NextResponse.json({ business })
+    return NextResponse.json(business)
   } catch (error) {
     console.error("Error fetching business:", error)
-    return NextResponse.json({ error: "Failed to fetch business" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Erro ao buscar dados do negócio" },
+      { status: 500 }
+    )
   }
 }
 
