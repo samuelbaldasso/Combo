@@ -1,8 +1,10 @@
 "use client";
 
-import type React from "react";
-
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
+import { clearFirebaseToken } from "@/lib/auth-utils";
 import { Plus, Trash, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,12 +16,15 @@ import { loadGoogleMapsScript } from "@/lib/google-maps";
 import type { Business } from "@/types/business";
 
 export default function AdminPage() {
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
     null
   );
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -29,19 +34,29 @@ export default function AdminPage() {
     longitude: 0,
     openingHours: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
+
+  // Auth check
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/admin/login");
+    }
+  }, [user, loading, router]);
 
   // Load Google Maps script
   useEffect(() => {
-    loadGoogleMapsScript()
-      .then(() => setIsGoogleMapsLoaded(true))
-      .catch((err) => console.error("Failed to load Google Maps:", err));
-  }, []);
+    if (user) {
+      loadGoogleMapsScript()
+        .then(() => setIsGoogleMapsLoaded(true))
+        .catch((err) => console.error("Failed to load Google Maps:", err));
+    }
+  }, [user]);
 
   // Fetch businesses on component mount
   useEffect(() => {
-    fetchBusinesses();
-  }, []);
+    if (user) {
+      fetchBusinesses();
+    }
+  }, [user]);
 
   const fetchBusinesses = async () => {
     setIsLoading(true);
@@ -167,9 +182,34 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogout = async () => {
+    await auth.signOut();
+    clearFirebaseToken();
+    router.push("/admin/login");
+  };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // If not authenticated, don't render the admin content
+  if (!user) {
+    return null;
+  }
+
   return (
     <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Painel Administrativo</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+        <Button variant="outline" onClick={handleLogout}>
+          Sair
+        </Button>
+      </div>
 
       <Tabs defaultValue="list">
         <TabsList className="mb-6">
